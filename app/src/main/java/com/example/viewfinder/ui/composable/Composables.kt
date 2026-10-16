@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -94,7 +95,16 @@ fun ViewFinder(
 @Composable
 fun CameraScreen(lifecycleOwner: LifecycleOwner) {
     val context = LocalContext.current
-    val imageCapture = remember { ImageCapture.Builder().build() }
+    // Force the exact same resolution on Preview and ImageCapture so the
+    // preview field-of-view matches the saved photo. Without this, CameraX
+    // picks resolutions independently and different resolutions can crop
+    // the sensor differently on many devices.
+    val targetResolution = remember { Size(1920, 1440) }
+    val imageCapture = remember {
+        ImageCapture.Builder()
+            .setTargetResolution(targetResolution)
+            .build()
+    }
 
     @OptIn(ExperimentalPagerApi::class) Box(
         modifier = Modifier.fillMaxSize()
@@ -102,15 +112,18 @@ fun CameraScreen(lifecycleOwner: LifecycleOwner) {
         AndroidView(
             factory = { ctx ->
                 val previewView = PreviewView(ctx).apply {
-                    implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                    implementationMode = PreviewView.ImplementationMode.PERFORMANCE
+                    scaleType = PreviewView.ScaleType.FIT_CENTER
                 }
                 val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                 cameraProviderFuture.addListener(
                     {
                         val cameraProvider = cameraProviderFuture.get()
-                        val preview = Preview.Builder().build().also {
-                            it.surfaceProvider = previewView.surfaceProvider
-                        }
+                        val preview = Preview.Builder()
+                            .setTargetResolution(targetResolution)
+                            .build().also {
+                                it.surfaceProvider = previewView.surfaceProvider
+                            }
                         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
                         try {
                             cameraProvider.unbindAll()
@@ -179,6 +192,7 @@ fun CameraScreen(lifecycleOwner: LifecycleOwner) {
                     .alpha(0.5f)
             )
         }
+
         Button(
             onClick = { takePhoto(context, imageCapture) },
             modifier = Modifier
