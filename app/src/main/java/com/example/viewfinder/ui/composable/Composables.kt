@@ -40,36 +40,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-/*
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier,
-    lifecycleOwner: LifecycleOwner
-    ) {
-    var showCamera by remember { mutableStateOf(false) }
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        showCamera = isGranted
-    }
-
-// Trigger the permission request
-    LaunchedEffect(key1 = Unit) {
-        launcher.launch(Manifest.permission.CAMERA)
-    }
-    if (showCamera) {
-        CameraScreen(lifecycleOwner)
-
-    }
-    Text1(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-*/
-
 @Composable
 fun ViewFinder(
     modifier: Modifier = Modifier, lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
@@ -104,7 +74,7 @@ fun ViewFinder(
 fun CameraScreen(lifecycleOwner: LifecycleOwner) {
 
     @OptIn(ExperimentalPagerApi::class) Box(
-        modifier = Modifier.fillMaxSize() // Occupy the entire screen
+        modifier = Modifier.fillMaxSize()
     ) {
         AndroidView(factory = { context ->
             val previewView = PreviewView(context).apply {
@@ -121,7 +91,7 @@ fun CameraScreen(lifecycleOwner: LifecycleOwner) {
                     try {
                         cameraProvider.unbindAll()
                         cameraProvider.bindToLifecycle(
-                            lifecycleOwner, // Provide your LifecycleOwner here
+                            lifecycleOwner,
                             cameraSelector, preview
                         )
                     } catch (exc: Exception) {
@@ -132,17 +102,16 @@ fun CameraScreen(lifecycleOwner: LifecycleOwner) {
             previewView
         })
 
-        var painter1 = painterResource(id = R.drawable.fibonacci_spiral)
-        var painter2 = painterResource(id = R.drawable.photo_3x3)
-        var painter3 = painterResource(id = R.drawable.horizontal_symmetry_line)
-        var painter4 = painterResource(id = R.drawable.vertical_symmetry_line)
-        var painter5 = painterResource(id = R.drawable.plus_sign)
-        var painter6 = painterResource(id = R.drawable.leading_curved_and_straight_arrows)
-        var painter7 = painterResource(id = R.drawable.leading_inner_outer_curved_arrows)
-        var painter8 = painterResource(id = R.drawable.leading_inner_outer_curved_arrows_1)
-        var painter9 = painterResource(id = R.drawable.diagonal_types)
+        val painter1 = painterResource(id = R.drawable.fibonacci_spiral)
+        val painter2 = painterResource(id = R.drawable.photo_3x3)
+        val painter3 = painterResource(id = R.drawable.horizontal_symmetry_line)
+        val painter4 = painterResource(id = R.drawable.vertical_symmetry_line)
+        val painter5 = painterResource(id = R.drawable.plus_sign)
+        val painter6 = painterResource(id = R.drawable.leading_curved_and_straight_arrows)
+        val painter7 = painterResource(id = R.drawable.leading_inner_outer_curved_arrows)
+        val painter8 = painterResource(id = R.drawable.leading_inner_outer_curved_arrows_1)
+        val painter9 = painterResource(id = R.drawable.diagonal_types)
 
-        // Load images into imageList
         val imageList = remember {
             mutableStateListOf<Painter>().also { list ->
                 list.addAll(
@@ -161,76 +130,36 @@ fun CameraScreen(lifecycleOwner: LifecycleOwner) {
             }
         }
 
-        // Image carousel
         val pagerState = rememberPagerState()
         HorizontalPager(
-            count = Int.MAX_VALUE, // imageList.size, // Replace imageList with your list of images
+            count = Int.MAX_VALUE,
             state = pagerState,
             modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.Center)
-                .zIndex(1f) // Place above camera preview
+                .zIndex(1f)
         ) { page ->
 
-            val actualImageIndex = page % imageList.size // Map to actual image index
+            val actualImageIndex = page % imageList.size
 
             Image(
-                painter = imageList[actualImageIndex], // Replace with your image loading logic
+                painter = imageList[actualImageIndex],
                 contentDescription = "Viewfinder Guideline ${actualImageIndex + 1}",
                 modifier = Modifier
                     .fillMaxSize(fraction = 0.775f)
-                    .aspectRatio(1f) // Maintain aspect ratio
-                    .alpha(0.5f) // Adjust transparency as needed
+                    .aspectRatio(1f)
+                    .alpha(0.5f)
             )
         }
         Button(
-            onClick = {
-                takePhoto() // Implement your camera capture logic here
-            },
+            onClick = { takePhoto() },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(16.dp)
         ) { }
-        /*
-        // Buttons centered horizontally and vertically
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .zIndex(2f)
-                .padding(16.dp)
-                .align(Alignment.TopCenter) // Center within the Box
-            ,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-
-            IconButton(
-                onClick = { /* Left button action */ },
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color.LightGray) // Background for left button
-            ) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    modifier = Modifier
-                        .size(24.dp) // Increase icon size
-                )
-            }
-
-            IconButton(
-                onClick = { /* Right button action */ },
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color.LightGray) // Background for right button
-
-            ) {
-                Icon(
-                    Icons.Filled.ArrowForward,
-                    contentDescription = "Forward",
-                    modifier = Modifier.size(24.dp) // Increase icon size
-                )
-            }
-        }
-        */
     }
+}
+
+private fun takePhoto() {
+    // TODO: implement photo capture
 }
